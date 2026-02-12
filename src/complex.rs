@@ -2,8 +2,8 @@ use num_traits::{Num, Zero};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Complex<T: Num + Copy> {
-    re: T,
-    im: T,
+    pub re: T,
+    pub im: T,
 }
 
 impl<T: Num + Copy> Complex<T> {

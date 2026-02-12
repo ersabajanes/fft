@@ -13,6 +13,7 @@ name = "fft"
 version = "0.1.0"
 dependencies = [
  "num-traits",
+ "qoi",
 ]
 
 [[package]]
@@ -23,3 +24,8 @@ checksum = "071dfc062690e90b734c0b2273ce72ad0ffa95f0c74596bc250dcfd960262841"
 dependencies = [
  "autocfg",
 ]
+
+[[package]]
+name = "qoi"
+version = "0.1.1"
+source = "git+https://github.com/ersabajanes/qoi.git#cb78ac3a6f15ac5c2dc4130a06c5ac8ca44af7cd"

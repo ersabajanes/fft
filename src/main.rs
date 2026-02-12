@@ -1,29 +1,53 @@
-use fft::{fft, ifft, complex::Complex};
-use core::f32;
+use std::f32::{INFINITY, NEG_INFINITY};
+
+// use core::f32;
+use fft::{complex::Complex};
 use num_traits::Zero;
 
 fn main() {
-    let fs = 8;
-    let ns = fs;
+    let mut w: u32 = 0;
+    let mut h: u32 = 0;
+    let mut d: u8  = 0;
+    let mut c: u8  = 0;
+    let mut pix = qoi::load("noise_blue.qoi", &mut w, &mut h, &mut d, &mut c).unwrap();
 
-    let fr = 1.0;
-    let am = 1.0;
-    let ph = 0.0;
-    let mut x = vec![Complex::zero(); ns];
-    for n in 0..ns {
-        x[n] = Complex::new(am * f32::cos(2.0 * f32::consts::PI * n as f32 / fs as f32 * fr + ph), 0.0);
+    let mut xt = vec![Complex::zero(); w as usize * h as usize];
+    for i in 0..h as usize {
+        for j in 0..w as usize {
+            xt[i * w as usize + j] = Complex::new(pix[(i * w as usize + j) * 3 + 0] as f32 / 255.0 * 2.0 - 1.0, 0.0);
+        }
     }
 
-    let y =  fft(&x[..], 2);
-    let z = ifft(&y[..], 2);
+    let xf = fft::fft2(&xt, w as usize, h as usize, 2);
 
-    for n in 0..ns {
-        println!("{} | ({}) - ({}) = {}", n, x[n], z[n], x[n] - z[n]);
+
+    let mut min_a = INFINITY;
+    let mut max_a = NEG_INFINITY;
+    for i in 0..h as usize {
+        for j in 0..w as usize {
+            let f = xf[i * w as usize + j];
+            let a = f32::sqrt(f.re * f.re + f.im * f.im);
+            min_a = f32::min(a, min_a);
+            max_a = f32::max(a, max_a);
+        }
     }
 
-    println!();
-    for n in 0..ns {
-        let m = (n + (ns + 1) / 2) % ns;
-        println!("{} | {}", m, y[m]);
+    for i in 0..h as usize {
+        for j in 0..w as usize {
+            let iw = (i + (h as usize + 1) / 2) % h as usize;
+            let jw = (j + (w as usize + 1) / 2) % w as usize;
+            let f = xf[iw * w as usize + jw];
+
+            // pix[(i * w as usize + j) * 3 + 0] = ((f.re - min_a) / (max_a - min_a) * 255.0) as u8;
+            // pix[(i * w as usize + j) * 3 + 1] = ((f.im - min_a) / (max_a - min_a) * 255.0) as u8;
+            // pix[(i * w as usize + j) * 3 + 2] = 0;
+
+            let a = (f32::sqrt(f.re * f.re + f.im * f.im) - min_a) / (max_a - min_a) * 255.0;
+            pix[(i * w as usize + j) * 3 + 0] = a as u8;
+            pix[(i * w as usize + j) * 3 + 1] = a as u8;
+            pix[(i * w as usize + j) * 3 + 2] = a as u8;
+        }
     }
+
+    qoi::save("fft2.qoi", w, h, d, c, &pix).unwrap();
 }
