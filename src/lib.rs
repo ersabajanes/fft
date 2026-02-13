@@ -114,18 +114,19 @@ pub fn fft2(xt: &[Complex<f32>], w: usize, h: usize, r: usize) -> Vec<Complex<f3
         let mut xti = xt[i * w..i * w + w].to_vec();
         xti.resize(w2, Complex::zero());
 
-        let xfi = fft(&xti, r);
+        let xfi = fft_it(&xti, r);
         for j in 0..w2 {
             xf[i * w2 + j] = xfi[j];
         }
     }
 
-    for j in 0..w2 {
-        let xtj = Vec::from_iter(xf.iter().skip(j).step_by(w2).cloned());
-
-        let xfj = fft(&xtj, r);
+    for j1 in 0..w2 / 2 + 1 {
+        let xtj = Vec::from_iter(xf.iter().skip(j1).step_by(w2).cloned());
+        let xfj = fft_it(&xtj, r);
+        let j2 = (w2 - j1) % w2;
         for i in 0..h2 {
-            xf[i * w2 + j] = xfj[i];
+            xf[i * w2 + j1] = xfj[i];
+            xf[i * w2 + j2] = xfj[i];
         }
     }
 

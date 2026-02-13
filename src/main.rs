@@ -26,7 +26,7 @@ fn main() {
     let mut h1: u32 = 0;
     let mut d1: u8  = 0;
     let mut c1: u8  = 0;
-    let ker = qoi::load("flower.qoi", &mut w1, &mut h1, &mut d1, &mut c1).unwrap();
+    let ker = qoi::load("heart.qoi", &mut w1, &mut h1, &mut d1, &mut c1).unwrap();
 
     // FFT size
     let w2: usize = w0 as usize + w1 as usize;
@@ -41,11 +41,10 @@ fn main() {
             let r = img[(i * w0 as usize + j) * d0 as usize + 0] as f32 / 255.0;
             let g = img[(i * w0 as usize + j) * d0 as usize + 1] as f32 / 255.0;
             let b = img[(i * w0 as usize + j) * d0 as usize + 2] as f32 / 255.0;
-            let a = if d0 > 3 { img[(i * w0 as usize + j) * d0 as usize + 3] as f32 / 255.0 } else { 1.0 };
 
-            rt0[i * w2 + j] = Complex::new((1.0 - r) * a, 0.0);
-            gt0[i * w2 + j] = Complex::new((1.0 - g) * a, 0.0);
-            bt0[i * w2 + j] = Complex::new((1.0 - b) * a, 0.0);
+            rt0[i * w2 + j] = Complex::new(r, 0.0);
+            gt0[i * w2 + j] = Complex::new(g, 0.0);
+            bt0[i * w2 + j] = Complex::new(b, 0.0);
         }
     }
 
@@ -114,10 +113,6 @@ fn main() {
             let r = r * 255.0;
             let g = g * 255.0;
             let b = b * 255.0;
-
-            // let r = r.pow(1.0 / 2.2);
-            // let g = g.pow(1.0 / 2.2);
-            // let b = b.pow(1.0 / 2.2);
 
             // let r = r.re * r.re + r.im * r.im;
             // let g = g.re * g.re + g.im * g.im;
